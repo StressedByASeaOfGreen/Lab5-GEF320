@@ -91,6 +91,7 @@ class BillsController(Controller):
                 self.bills.append(Bill(order))
         self.current_bill = self.bills[0]
 
+    def print_bill(self):
 
 
     def change_current(self, new_bill):

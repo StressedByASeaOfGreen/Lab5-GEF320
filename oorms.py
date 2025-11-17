@@ -125,12 +125,12 @@ class ServerView(RestaurantView):
 
     def create_bills_ui(self, bills, current_bills):
         self.canvas.delete(tk.ALL)
-
-        self.make_button('Fuse Bills', lambda event: self.controller.fuse_bills(), location=BUTTON_BOTTOM_RIGHT)
-        self.make_button('Done', lambda event: self.controller.done(), location=BUTTON_BOTTOM_RIGHT2)
+        self.make_button('Print Bill', lambda event: self.controller.fuse_bills(), location=BUTTON_BOTTOM_RIGHT3)
+        self.make_button('Fuse Bills', lambda event: self.controller.fuse_bills(), location=BUTTON_BOTTOM_RIGHT2)
+        self.make_button('Done', lambda event: self.controller.done(), location=BUTTON_BOTTOM_RIGHT)
         self.canvas.grid(row=0, column=0)
         self.current = self.controller.current_bill
-
+        self.draw_order_bill(current_bills)
         self.bills_button(self.controller.bills)
     def bills_button(self, bills):
         def handler(_, new_bill):
@@ -167,7 +167,20 @@ class ServerView(RestaurantView):
                                  location=(x0 - 2*(DOT_SIZE + DOT_MARGIN), y0))
         self.canvas.create_text(x0, m + len(order.items) * h,
                                 text=f'Total: {order.total_cost():.2f}',
-                                anchor=tk.NW)
+                                anchor="nw")
+
+    def draw_order_bill(self, bill):
+        x0, h, m = ORDER_ITEM_LOCATION
+        for ix, item in enumerate(bill.items):
+            y0 = m + ix * h
+            self.canvas.create_text(x0, y0, text=f"{bill.items[item]} X {item.name}",
+                                    anchor="nw")
+            dot_style = ORDERED_STYLE
+            self.canvas.create_oval(x0 - DOT_SIZE - DOT_MARGIN, y0, x0 - DOT_MARGIN, y0 + DOT_SIZE, **dot_style)
+
+        self.canvas.create_text(x0, m + len(bill.items) * h,
+                                text=f'Total: {bill.total_cost():.2f}',
+                                anchor="nw")
 
 
 class Printer(tk.Frame):

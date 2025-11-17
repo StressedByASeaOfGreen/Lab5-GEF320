@@ -120,33 +120,25 @@ class Bill:
     def __init__(self, order):
         self.orders = [order]
         self.items = {}
-        self.update_items(self.orders)
+        self.update_items()
 
     def add_order(self, order):
         self.orders.append(order)
-        self.update_items(self.orders)
+        self.update_items()
 
-    def update_items(self, order_list):
+    def total_cost(self):
+        total = 0.0
+        for item in self.items:
+            total += self.items[item]*item.price
+        return total
+
+    def update_items(self):
         self.items.clear()
-        for order in order_list:
+        for order in self.orders:
             for item in order.items:
-                if item in self.items:
-                    self.items[item] += 1  # Increment count if item already in dictionary
+                key = item.details
+                if key in self.items:
+                    self.items[key] += 1
                 else:
-                    self.items[BillItem(item.details)] = 1
+                    self.items[key] = 1
 
-class BillItem:
-    def __init__(self, menu_item):
-        number = 1
-        self.name = menu_item.name
-        self.price_per = menu_item.price
-        self.price_total = self.price_per * number
-
-    @property
-    def number(self):
-        return self.number
-
-    @number.setter
-    def number(self, number):
-        self.number = number
-        self.price_total = self.price_per.price * number

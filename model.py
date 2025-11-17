@@ -47,6 +47,10 @@ class Table:
     def order_for(self, seat):
         return self.orders[seat]
 
+    def clear_table(self):
+        self.orders.clear()
+        self.orders = [Order() for _ in range(self.n_seats)]
+
 
 class Order:
 
@@ -123,12 +127,14 @@ class Bill:
                 if item in self.items:
                     self.items[item] += 1  # Increment count if item already in dictionary
                 else:
-                    self.items[item] = 1
+                    self.items[BillItem(item.details)] = 1
 
-class BillItem(MenuItem):
-    def __init__(self, name, price, number):
-        super().__init__(name, price)
-        self.number = number
+class BillItem:
+    def __init__(self, menu_item):
+        number = 1
+        self.name = menu_item.name
+        self.price_per = menu_item.price
+        self.price_total = self.price_per * number
 
     @property
     def number(self):
@@ -137,3 +143,4 @@ class BillItem(MenuItem):
     @number.setter
     def number(self, number):
         self.number = number
+        self.price_total = self.price_per.price * number

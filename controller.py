@@ -6,6 +6,7 @@ Submission date: [date here]
 
 Original code by EEE320 instructors.
 """
+from model import Bill
 
 
 class Controller:
@@ -40,9 +41,8 @@ class TableController(Controller):
         self.view.update()
 
     def make_bills(self, printer):
-        # TODO: switch to appropriate controller & UI so server can create and print bills
-        # for this table. The following line illustrates how bill printing works, but the
-        # actual printing should happen in the (new) controller, not here.
+        self.view.set_controller(BillsController(self.view, self.restaurant, self.table))
+        self.view.update()
         printer.print(f'Set up bills for table {self.restaurant.tables.index(self.table)}')
 
     def done(self):
@@ -77,3 +77,25 @@ class OrderController(Controller):
         self.order.remove_unordered_items()
         self.view.set_controller(TableController(self.view, self.restaurant, self.table))
         self.restaurant.notify_views()
+
+
+class BillsController(Controller):
+    def __init__(self, view, restaurant, table):
+        super().__init__(view, restaurant)
+        bills = []
+        for order in table.orders:
+            bills.append(Bill(order))
+        self.current_bill = 0
+        self.table = table
+
+    def change_current(self, new_bill):
+        self.current_bill = new_bill
+        self.restaurant.notify_views()
+
+    def done(self):
+        self.table.clear_table()
+        self.view.set_controller(RestaurantController(self.view, self.restaurant))
+        self.view.update()
+
+    def create_ui(self):
+        self.view.create_bills_ui(self.bills, self.current_bill)

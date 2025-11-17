@@ -85,6 +85,9 @@ class ServerView(RestaurantView):
                 action=lambda event: self.controller.make_bills(self.printer_window),
                 location=BUTTON_BOTTOM_LEFT)
 
+    def create_bills_ui(self,table):
+        pass
+
     def draw_table(self, table, location=None, scale=1):
         offset_x0, offset_y0 = location if location else table.location
         seats_per_side = math.ceil(table.n_seats / 2)
@@ -120,6 +123,7 @@ class ServerView(RestaurantView):
         self.draw_order(order)
         self.make_button('Cancel', lambda event: self.controller.cancel_changes(), location=BUTTON_BOTTOM_LEFT)
         self.make_button('Update Order', lambda event: self.controller.update_order())
+
 
     def draw_order(self, order):
         x0, h, m = ORDER_ITEM_LOCATION

@@ -137,12 +137,14 @@ class ServerView(RestaurantView):
             self.controller.change_current(new_bill)
         for i, bill in enumerate(bills):
             if bill == self.current:
-                butt = tk.Button(self, text =f"Bill {i}",bg = BUTTON_PRESSED_COLOR,  command=lambda b=bill: handler(b), relief="sunken", height=BUTTON_SIZE_UNIT[1], width=BUTTON_SIZE_UNIT[0])
-                butt.grid(row=i, column=0,sticky="w", padx=BUTTON_MARGIN[0], pady=BUTTON_MARGIN[1])
+                self.make_button(f"Bill {i} <",
+                                 action=lambda event: handler(bill),
+                                 location=BUTTON_TOP_LEFT(i), rect_style=BUTTON_STYLE_PRESSED)
+
             else:
-                butt = tk.Button(self, text=f"Bill {i}", bg=BUTTON_NOT_PRESSED_COLOR,
-                                 command=lambda b=bill: handler(b), relief="raised",height=BUTTON_SIZE_UNIT[1], width=BUTTON_SIZE_UNIT[0])
-                butt.grid(row=i, column=0, sticky="w", padx=BUTTON_MARGIN[0], pady=BUTTON_MARGIN[1])
+                self.make_button(f"Bill {i}",
+                                 action=lambda event: handler(bill),
+                                 location=BUTTON_TOP_LEFT(i), rect_style=BUTTON_STYLE)
 
 
 

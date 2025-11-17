@@ -83,10 +83,14 @@ class BillsController(Controller):
     def __init__(self, view, restaurant, table):
         super().__init__(view, restaurant)
         self.bills = []
-        for order in table.orders:
-            self.bills.append(Bill(order))
-        self.current_bill = self.bills[0]
         self.table = table
+        for order in table.orders:
+
+            if not order.is_empty():
+                order.remove_unordered_items()
+                self.bills.append(Bill(order))
+        self.current_bill = self.bills[0]
+
 
 
     def change_current(self, new_bill):

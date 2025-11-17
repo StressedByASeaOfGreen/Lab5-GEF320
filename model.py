@@ -78,6 +78,12 @@ class Order:
     def total_cost(self):
         return sum((item.details.price for item in self.items))
 
+    def is_empty(self):
+        for item in self.items:
+            if item.has_been_ordered():
+                return False
+        return True
+
 
 class OrderItem:
 

@@ -82,11 +82,12 @@ class OrderController(Controller):
 class BillsController(Controller):
     def __init__(self, view, restaurant, table):
         super().__init__(view, restaurant)
-        bills = []
+        self.bills = []
         for order in table.orders:
-            bills.append(Bill(order))
-        self.current_bill = 0
+            self.bills.append(Bill(order))
+        self.current_bill = self.bills[0]
         self.table = table
+
 
     def change_current(self, new_bill):
         self.current_bill = new_bill
@@ -97,5 +98,13 @@ class BillsController(Controller):
         self.view.set_controller(RestaurantController(self.view, self.restaurant))
         self.view.update()
 
+    def fuse_bills(self):
+        self.view.set_controller(FusionController(self.view, self.restaurant, self.table))
+
     def create_ui(self):
         self.view.create_bills_ui(self.bills, self.current_bill)
+
+class FusionController(Controller):
+    def __init__(self, view, restaurant, table):
+        super().__init__(view, restaurant)
+        pass

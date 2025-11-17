@@ -12,6 +12,7 @@ Original code by EEE320 instructors.
 import math
 import tkinter as tk
 from abc import ABC
+from tkinter.constants import RAISED
 
 from constants import *
 from controller import RestaurantController
@@ -85,8 +86,6 @@ class ServerView(RestaurantView):
                 action=lambda event: self.controller.make_bills(self.printer_window),
                 location=BUTTON_BOTTOM_LEFT)
 
-    def create_bills_ui(self,table):
-        pass
 
     def draw_table(self, table, location=None, scale=1):
         offset_x0, offset_y0 = location if location else table.location
@@ -123,6 +122,30 @@ class ServerView(RestaurantView):
         self.draw_order(order)
         self.make_button('Cancel', lambda event: self.controller.cancel_changes(), location=BUTTON_BOTTOM_LEFT)
         self.make_button('Update Order', lambda event: self.controller.update_order())
+
+    def create_bills_ui(self, bills, current_bills):
+        self.canvas.delete(tk.ALL)
+
+        self.make_button('Fuse Bills', lambda event: self.controller.fuse_bills(), location=BUTTON_BOTTOM_RIGHT)
+        self.make_button('Done', lambda event: self.controller.done(), location=BUTTON_BOTTOM_RIGHT2)
+        self.canvas.grid(row=0, column=0)
+        self.current = self.controller.current_bill
+
+        self.bills_button(self.controller.bills)
+    def bills_button(self, bills):
+        def handler(_, new_bill):
+            self.controller.change_current(new_bill)
+        for i, bill in enumerate(bills):
+            if bill == self.current:
+                butt = tk.Button(self, text =f"Bill {i}",bg = BUTTON_PRESSED_COLOR,  command=lambda b=bill: handler(b), relief="sunken", height=BUTTON_SIZE_UNIT[1], width=BUTTON_SIZE_UNIT[0])
+                butt.grid(row=i, column=0,sticky="w", padx=BUTTON_MARGIN[0], pady=BUTTON_MARGIN[1])
+            else:
+                butt = tk.Button(self, text=f"Bill {i}", bg=BUTTON_NOT_PRESSED_COLOR,
+                                 command=lambda b=bill: handler(b), relief="raised",height=BUTTON_SIZE_UNIT[1], width=BUTTON_SIZE_UNIT[0])
+                butt.grid(row=i, column=0, sticky="w", padx=BUTTON_MARGIN[0], pady=BUTTON_MARGIN[1])
+
+
+
 
 
     def draw_order(self, order):

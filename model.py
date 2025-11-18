@@ -119,7 +119,10 @@ class MenuItem:
 
 class Bill:
     def __init__(self, order):
-        self.orders = [order]
+        if order!=None:
+            self.orders = [order]
+        else:
+            self.orders = []
         self.items = {}
         self.update_items()
 

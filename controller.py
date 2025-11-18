@@ -132,12 +132,12 @@ class FusionController(Controller):
 
     def done(self):
         self.bills.append(self.merge_selected_orders(self.selected, self.bills))
+
         self.view.set_controller(BillsController(self.view, self.restaurant, self.table))
         self.restaurant.controller.bills = self.bills
 
     def merge_selected_orders(self, select, bills):
         new_bill = Bill(None)
-        new_bill.remove_order(None)
         bills_to_remove = []
 
         for bill in bills:

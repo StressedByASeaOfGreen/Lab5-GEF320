@@ -123,32 +123,34 @@ class ServerView(RestaurantView):
         self.make_button('Cancel', lambda event: self.controller.cancel_changes(), location=BUTTON_BOTTOM_LEFT)
         self.make_button('Update Order', lambda event: self.controller.update_order())
 
-    def create_bills_ui(self, bills, current_bills):
+    def create_bills_ui(self, bills, current_bill):
         self.canvas.delete(tk.ALL)
-        self.make_button('Print Bill', lambda event: self.controller.fuse_bills(), location=BUTTON_BOTTOM_RIGHT3)
+        self.make_button('Print Bill', lambda event: self.controller.print_bill(), location=BUTTON_BOTTOM_RIGHT3)
         self.make_button('Fuse Bills', lambda event: self.controller.fuse_bills(), location=BUTTON_BOTTOM_RIGHT2)
         self.make_button('Done', lambda event: self.controller.done(), location=BUTTON_BOTTOM_RIGHT)
         self.canvas.grid(row=0, column=0)
         self.current = self.controller.current_bill
-        self.draw_order_bill(current_bills)
+        self.draw_order_bill(current_bill)
         self.bills_button(self.controller.bills)
+
     def bills_button(self, bills):
         def handler(_, new_bill):
             self.controller.change_current(new_bill)
         for i, bill in enumerate(bills):
             if bill == self.current:
-                self.make_button(f"Bill {i} <",
-                                 action=lambda event: handler(bill),
-                                 location=BUTTON_TOP_LEFT(i), rect_style=BUTTON_STYLE_PRESSED)
-
+                self.make_button(
+                    f"Bill {i} <",
+                    action=lambda event, b=bill: handler(event, b),
+                    location=BUTTON_TOP_LEFT(i),
+                    rect_style=BUTTON_STYLE_PRESSED
+                )
             else:
-                self.make_button(f"Bill {i}",
-                                 action=lambda event: handler(bill),
-                                 location=BUTTON_TOP_LEFT(i), rect_style=BUTTON_STYLE)
-
-
-
-
+                self.make_button(
+                    f"Bill {i}",
+                    action=lambda event, b=bill: handler(event, b),
+                    location=BUTTON_TOP_LEFT(i),
+                    rect_style=BUTTON_STYLE
+                )
 
     def draw_order(self, order):
         x0, h, m = ORDER_ITEM_LOCATION
@@ -182,6 +184,47 @@ class ServerView(RestaurantView):
                                 text=f'Total: {bill.total_cost():.2f}',
                                 anchor="nw")
 
+    def create_fusion_ui(self, bills, table):
+        self.canvas.delete(tk.ALL)
+        self.controller.table_id, self.controller.seat_ids = self.draw_table_fusion(table, location=SINGLE_TABLE_LOCATION)
+        for ix, seat_id in enumerate(self.controller.seat_ids):
+            def handler(_, seat_number=ix):
+                self.controller.seat_touched(seat_number)
+        self.make_button('Done', lambda event: self.controller.done(), location=BUTTON_BOTTOM_RIGHT)
+
+    def draw_table_fusion(self, table, location=None, scale=1):
+        offset_x0, offset_y0 = location if location else table.location
+        seats_per_side = math.ceil(table.n_seats / 2)
+        table_height = SEAT_DIAM * seats_per_side + SEAT_SPACING * (seats_per_side - 1)
+        table_x0 = SEAT_DIAM + SEAT_SPACING
+        table_bbox = scale_and_offset(table_x0, 0, TABLE_WIDTH, table_height,
+                                      offset_x0, offset_y0, scale)
+        table_id = self.canvas.create_rectangle(*table_bbox, **TABLE_STYLE)
+        far_seat_x0 = table_x0 + TABLE_WIDTH + SEAT_SPACING
+        seat_ids = []
+        for ix in range(table.n_seats):
+            seat_x0 = (ix % 2) * far_seat_x0
+            seat_y0 = (ix // 2 * (SEAT_DIAM + SEAT_SPACING) +
+                       (table.n_seats % 2) * (ix % 2) * (SEAT_DIAM + SEAT_SPACING) / 2)
+            seat_bbox = scale_and_offset(seat_x0, seat_y0, SEAT_DIAM, SEAT_DIAM,
+                                         offset_x0, offset_y0, scale)
+            style = EMPTY_SEAT_STYLE
+            if table.has_order_for(ix):
+                seat_id = self.canvas.create_oval(*seat_bbox, **style)
+                self.canvas.tag_bind(
+                    seat_id,
+                    "<Button-1>",
+                    lambda event, sid=seat_id: self.change_seat_style(sid)
+                )
+                seat_ids.append(seat_id)
+            else:
+                seat_ids.append(None)
+        return table_id, seat_ids
+
+    def change_seat_style(self, seat_id):
+        current_fill = self.canvas.itemcget(seat_id, "fill")
+        new_fill = EMPTY_SEAT_STYLE['fill'] if current_fill == FULL_SEAT_STYLE['fill'] else FULL_SEAT_STYLE['fill']
+        self.canvas.itemconfig(seat_id, fill=new_fill)
 
 class Printer(tk.Frame):
     """

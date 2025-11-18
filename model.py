@@ -32,7 +32,7 @@ class Table:
     def __init__(self, seats, location):
         self.n_seats = seats
         self.location = location
-        self.orders = [Order() for _ in range(seats)]
+        self.orders = [Order(i) for i in range(seats)]
 
     def has_any_active_orders(self):
         for order in self.orders:
@@ -49,13 +49,14 @@ class Table:
 
     def clear_table(self):
         self.orders.clear()
-        self.orders = [Order() for _ in range(self.n_seats)]
+        self.orders = [Order(i) for i in range(self.n_seats)]
 
 
 class Order:
 
-    def __init__(self):
+    def __init__(self, seat_number):
         self.items = []
+        self.seat_number = seat_number
 
     def add_item(self, menu_item):
         item = OrderItem(menu_item)
@@ -124,6 +125,10 @@ class Bill:
 
     def add_order(self, order):
         self.orders.append(order)
+        self.update_items()
+
+    def remove_order(self, order):
+        self.orders.remove(order)
         self.update_items()
 
     def total_cost(self):

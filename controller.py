@@ -91,8 +91,8 @@ class BillsController(Controller):
                 self.bills.append(Bill(order))
         self.current_bill = self.bills[0]
 
-    def print_bill(self):
-
+    def print_bill(self, Bill):
+        self.view.printer_window.print("test")
 
     def change_current(self, new_bill):
         self.current_bill = new_bill
@@ -104,12 +104,51 @@ class BillsController(Controller):
         self.view.update()
 
     def fuse_bills(self):
-        self.view.set_controller(FusionController(self.view, self.restaurant, self.table))
+        self.view.set_controller(FusionController(self.view, self.restaurant, self.table, self.bills))
+        self.restaurant.notify_views()
 
     def create_ui(self):
         self.view.create_bills_ui(self.bills, self.current_bill)
 
 class FusionController(Controller):
-    def __init__(self, view, restaurant, table):
+    def __init__(self, view, restaurant, table, bills):
         super().__init__(view, restaurant)
-        pass
+        self.seat_id = []
+        self.table_id = None
+        self.selected = []
+        self.bills = bills
+        self.table = table
+
+    def create_ui(self):
+        self.view.create_fusion_ui(self.bills, self.table)
+
+    def seat_touched(self, seat_number):
+        self.view.change_seat_style(seat_number)
+        if seat_number in self.selected:
+            self.selected.remove(seat_number)
+        else:
+            self.selected.append(seat_number)
+        self.view.update()
+
+    def done(self):
+        self.bills.append(self.merge_selected_orders(self.selected, self.bills))
+        self.view.set_controller(BillsController(self.view, self.restaurant, self.table))
+        self.restaurant.controller.bills = self.bills
+
+    def merge_selected_orders(self, select, bills):
+        new_bill = Bill(None)
+        new_bill.remove_order(None)
+        bills_to_remove = []
+
+        for bill in bills:
+            orders_to_move = [order for order in bill.orders if order.seat_number in select]
+            for order in orders_to_move:
+                new_bill.add_order(order)
+            for order in orders_to_move:
+                bill.orders.remove_order(order)
+            if not bill.orders:
+                bills_to_remove.append(bill)
+        for bill in bills_to_remove:
+            bills.remove(bill)
+
+        return new_bill

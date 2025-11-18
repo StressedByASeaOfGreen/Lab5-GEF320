@@ -184,7 +184,7 @@ class ServerView(RestaurantView):
                                 text=f'Total: {bill.total_cost():.2f}',
                                 anchor="nw")
 
-    def create_fusion_ui(self, bills, table):
+    def create_fusion_ui(self, table):
         self.canvas.delete(tk.ALL)
         self.controller.table_id, self.controller.seat_ids = self.draw_table_fusion(table, location=SINGLE_TABLE_LOCATION)
         for seat_no, seat_id in self.controller.seat_ids.items():

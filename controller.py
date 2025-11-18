@@ -140,7 +140,7 @@ class FusionController(Controller):
         self.table = table
 
     def create_ui(self):
-        self.view.create_fusion_ui(self.bills, self.table)
+        self.view.create_fusion_ui(self.table)
 
     def seat_touched(self, seat_id):
         if seat_id is None:

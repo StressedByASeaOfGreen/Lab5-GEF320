@@ -29,10 +29,10 @@ class Restaurant:
 
 class Table:
 
-    def __init__(self, seats, location):
-        self.n_seats = seats
+    def __init__(self, n_seats, location):
+        self.n_seats = n_seats
         self.location = location
-        self.orders = [Order(i) for i in range(seats)]
+        self.orders = [Order(i) for i in range(n_seats)]
 
     def has_any_active_orders(self):
         for order in self.orders:
@@ -62,8 +62,8 @@ class Order:
         item = OrderItem(menu_item)
         self.items.append(item)
 
-    def remove_item(self, order_item):
-        self.items.remove(order_item)
+    def remove_item(self, menu_item):
+        self.items.remove(menu_item)
 
     def place_new_orders(self):
         for item in self.unordered_items():

@@ -96,19 +96,13 @@ class OrderItem:
         self.state = "ordered"
 
     def has_been_ordered(self):
-        if self.state != "unordered":
-            return False
-        return True
+        return self.state == "ordered"
 
     def has_been_served(self):
-        if self.state == "served":
-            return True
-        return False
+        return self.state == "served"
 
     def can_be_cancelled(self):
-        if self.state != "served":
-            return True
-        return False
+        return self.state != "served"
 
 
 class MenuItem:
